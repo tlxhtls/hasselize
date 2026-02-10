@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # AI Backend
+  ai-backend:
+    build:
+      context: ./apps/ai-backend
+      dockerfile: Dockerfile
+    container_name: hasselize-ai-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - API_V1_PREFIX=/api/v1
+      - HOST=0.0.0.0
+      - PORT=8000
+      - CUDA_VISIBLE_DEVICES=0
+      - GPU_MEMORY_FRACTION=0.9
+      - TORCH_COMPILE=false
+      - MODEL_NAME=black-forest-labs/FLUX.1-schnell
+      - INFERENCE_STEPS=4
+      - NUM_INFERENCE_STEPS=4
+      - GUIDANCE_SCALE=1.0
+      - WIDTH=256
+      - HEIGHT=256
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - R2_ENDPOINT_URL=${R2_ENDPOINT_URL}
+      - R2_ACCESS_KEY_ID=${R2_ACCESS_KEY_ID}
+      - R2_SECRET_ACCESS_KEY=${R2_SECRET_ACCESS_KEY}
+      - R2_BUCKET_NAME=${R2_BUCKET_NAME}
+      - SECRET_KEY=${SECRET_KEY}
+      - ALLOWED_ORIGINS=http://localhost:3000
+      - LOG_LEVEL=INFO
+      - JSON_LOGS=true
+      - HUGGINGFACE_TOKEN=${HUGGINGFACE_TOKEN}
+    volumes:
+      - ./apps/ai-backend:/app
+      - model-cache:/app/cache/models
+      - lora-cache:/app/cache/lora
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Web Frontend (optional for local dev)
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: hasselize-web
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=${SUPABASE_URL}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - NEXT_PUBLIC_AI_BACKEND_URL=http://localhost:8000
+      - NEXT_PUBLIC_APP_URL=http://localhost:3000
+    volumes:
+      - ./apps/web:/app
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped
+    depends_on:
+      - ai-backend
+
+volumes:
+  model-cache:
+  lora-cache:
