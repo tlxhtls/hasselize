@@ -5,8 +5,12 @@ Provides authentication, authorization, and security utilities.
 """
 
 import os
+import time
+from collections import defaultdict
+from threading import Lock
 from typing import Optional
 
+from fastapi import HTTPException, Request, status
 from jose import JWTError, jwt
 from pydantic import BaseModel
 
@@ -122,9 +126,7 @@ def sanitize_filename(filename: str) -> str:
     filename = os.path.basename(filename)
 
     # Remove dangerous characters
-    filename = "".join(
-        c for c in filename if c.isalnum() or c in "._-"
-    )
+    filename = "".join(c for c in filename if c.isalnum() or c in "._-")
 
     # Limit length
     if len(filename) > 255:
@@ -147,3 +149,66 @@ def generate_secure_token(length: int = 32) -> str:
     import secrets
 
     return secrets.token_hex(length)
+
+
+class RateLimiter:
+    """Simple in-memory sliding window limiter."""
+
+    def __init__(self, requests_limit: int, window_seconds: int):
+        self.requests_limit = requests_limit
+        self.window_seconds = window_seconds
+        self._requests: defaultdict[str, list[float]] = defaultdict(list)
+        self._lock = Lock()
+
+    def is_allowed(self, client_id: str) -> bool:
+        now = time.time()
+        window_start = now - self.window_seconds
+
+        with self._lock:
+            recent = [ts for ts in self._requests[client_id] if ts > window_start]
+            self._requests[client_id] = recent
+
+            if len(recent) >= self.requests_limit:
+                return False
+
+            self._requests[client_id].append(now)
+            return True
+
+
+def _resolve_client_ip(request: Request) -> str:
+    """Resolve client identity from request headers/socket."""
+    x_forwarded_for = request.headers.get("x-forwarded-for")
+    if x_forwarded_for:
+        return x_forwarded_for.split(",")[0].strip()
+
+    x_real_ip = request.headers.get("x-real-ip")
+    if x_real_ip:
+        return x_real_ip.strip()
+
+    if request.client and request.client.host:
+        return request.client.host
+
+    return "unknown"
+
+
+def _create_rate_limiter() -> RateLimiter:
+    from .config import settings
+
+    return RateLimiter(
+        requests_limit=settings.rate_limit_requests,
+        window_seconds=settings.rate_limit_window_seconds,
+    )
+
+
+rate_limiter = _create_rate_limiter()
+
+
+async def rate_limit_dependency(request: Request) -> None:
+    """FastAPI dependency for transform endpoint throttling."""
+    client_id = _resolve_client_ip(request)
+
+    if not rate_limiter.is_allowed(client_id):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded. Please try again shortly.",
+        )

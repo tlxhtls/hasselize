@@ -68,6 +68,8 @@ class Settings(BaseSettings):
     # Security
     secret_key: str
     allowed_origins: str = "http://localhost:3000,https://hasselize.com"
+    rate_limit_requests: int = 10
+    rate_limit_window_seconds: int = 60
 
     # Logging
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"

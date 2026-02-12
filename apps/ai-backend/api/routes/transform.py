@@ -7,10 +7,11 @@ Main API endpoint for transforming images with camera styles.
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from pydantic import ValidationError
 
 from core.logging import logger
+from core.security import rate_limit_dependency
 from models.enums import CameraStyle, ResolutionMode
 from models.requests import TransformRequest
 from models.responses import TransformResponse
@@ -25,6 +26,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
     summary="Transform image",
     description="Transform an image with camera style using FLUX.1-Schnell",
+    dependencies=[Depends(rate_limit_dependency)],
 )
 async def transform_image(
     image: UploadFile = File(..., description="Image file to transform"),
@@ -61,7 +63,7 @@ async def transform_image(
         if len(image_data) > max_size:
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"Image too large. Maximum size: {max_size // (1024*1024)}MB",
+                detail=f"Image too large. Maximum size: {max_size // (1024 * 1024)}MB",
             )
 
         # Build transform request
@@ -103,6 +105,7 @@ async def transform_image(
     status_code=status.HTTP_200_OK,
     summary="Transform image from URL",
     description="Transform an image from URL with camera style",
+    dependencies=[Depends(rate_limit_dependency)],
 )
 async def transform_image_from_url(
     request: TransformRequest,
