@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { BeforeAfterSlider } from './BeforeAfterSlider'
 import { downloadImage } from '@/lib/storage/image-utils'
 
@@ -31,6 +31,13 @@ export function FeedCard({
 }: FeedCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
 
+  // Preload images
+  useEffect(() => {
+    const img = new Image()
+    img.onload = () => setImageLoaded(true)
+    img.src = transformedImage
+  }, [transformedImage])
+
   const handleDownload = () => {
     downloadImage(transformedImage, `hasselized-${id}.jpg`)
   }
@@ -50,7 +57,6 @@ export function FeedCard({
           beforeImage={originalImage}
           afterImage={transformedImage}
           className={`w-full ${imageLoaded ? 'block' : 'hidden'}`}
-          onLoad={() => setImageLoaded(true)}
         />
       </div>
 
