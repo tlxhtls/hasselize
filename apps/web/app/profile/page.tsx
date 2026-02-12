@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import { SignOutButton } from '@/components/auth/SignOutButton'
 
 export default async function ProfilePage() {
   const supabase = await createClient()
@@ -31,10 +32,11 @@ export default async function ProfilePage() {
     <div className="min-h-screen pb-12">
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
-        <div className="max-w-4xl mx-auto px-4 py-4">
+        <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
           <a href="/" className="text-xl font-bold text-gray-900">
             Hasselize
           </a>
+          <SignOutButton />
         </div>
       </header>
 
@@ -42,7 +44,10 @@ export default async function ProfilePage() {
         {/* Profile Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile</h1>
-          <p className="text-gray-600">{user.email}</p>
+          <div className="flex items-center gap-2 text-gray-600">
+            <span className="font-medium">Logged in as:</span>
+            <span>{user.email}</span>
+          </div>
         </div>
 
         {/* Stats */}

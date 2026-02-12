@@ -1,14 +1,28 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function LoginPage() {
+function LoginForm() {
   const supabase = createClient()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const errorCode = searchParams.get('error')
+    const errorDesc = searchParams.get('error_description')
+    
+    if (errorCode === 'auth_callback_failed') {
+      setError('Authentication failed. Please try again.')
+    } else if (errorDesc) {
+      setError(errorDesc)
+    } else if (errorCode) {
+      setError('An error occurred during sign in.')
+    }
+  }, [searchParams])
 
   const handleOAuthSignIn = async (provider: 'google' | 'apple') => {
     try {
@@ -101,5 +115,13 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }
