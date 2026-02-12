@@ -43,7 +43,7 @@ export default function TransformPage() {
   }
 
   const handleTransform = async () => {
-    if (!selectedImage) return
+    if (!selectedImage || isTransforming) return
 
     setIsTransforming(true)
     setError(null)
@@ -56,7 +56,9 @@ export default function TransformPage() {
       )
       setResult(transformResult)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Transformation failed')
+      console.error('Transformation error:', err)
+      const message = err instanceof Error ? err.message : 'An unexpected error occurred'
+      setError(message === 'Failed to fetch' ? 'Network error. Please check your connection.' : message)
     } finally {
       setIsTransforming(false)
     }
@@ -189,8 +191,28 @@ export default function TransformPage() {
 
         {/* Error */}
         {error && (
-          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600">{error}</p>
+          <div className="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5 text-red-500 flex-shrink-0"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <p className="text-red-700 font-medium">{error}</p>
+            </div>
+            <button
+              onClick={handleTransform}
+              className="px-4 py-2 text-sm font-medium text-red-700 bg-red-100 rounded-md hover:bg-red-200 transition-colors whitespace-nowrap"
+            >
+              Try Again
+            </button>
           </div>
         )}
 
