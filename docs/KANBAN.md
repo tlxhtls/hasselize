@@ -22,18 +22,21 @@
 - [x] **Supabase Clients** - Browser and server-side clients
 - [x] **API Client** - Transform API communication
 - [x] **Image Utilities** - Compression, validation, download
-- [x] **Components** - AuthButton, BeforeAfterSlider, ImageUploader, FeedCard
+- [x] **Components** - AuthButton (Google OAuth), BeforeAfterSlider, ImageUploader, FeedCard
 - [x] **Pages** - Home (feed), Login, Transform, Profile
+- [x] **Auth Callback Handler** - OAuth callback with code exchange (app/auth/callback/route.ts)
 - [x] **PWA Config** - manifest.json, service worker
 - [x] **Global Styles** - Tailwind CSS setup
 - [x] **Dockerfile** - Multi-stage production build
+- [x] **Environment Template** - .env.local.example with all required variables
 
 ### Database (Supabase)
 - [x] **Schema Migration** - Initial schema with all tables
 - [x] **Tables** - profiles, camera_styles, prompts, transformations, feed, likes
 - [x] **Row Level Security** - RLS policies for all tables
-- [x] **Triggers** - Auto-update timestamps, like counts
+- [x] **Triggers** - Auto-update timestamps, like counts, auto-profile creation
 - [x] **Seed Data** - 4 camera styles with prompts
+- [x] **Auth Profile Trigger** - Auto-create profile on OAuth signup (002_add_profile_trigger.sql)
 
 ### Infrastructure
 - [x] **Docker Compose** - Multi-service deployment
@@ -68,14 +71,15 @@
   - Update `lora_cache_dir` paths in model_loader.py
 
 #### 2. Supabase Auth Integration
-- [ ] **OAuth Provider Setup**
-  - Enable Google OAuth in Supabase
-  - Enable Apple OAuth in Supabase
-  - Configure redirect URLs (localhost + production)
-- [ ] **Auth Callback Handler** - `app/auth/callback/route.ts`
-  - Handle OAuth redirect
-  - Create user profile on first login
-  - Redirect to home page
+- [x] **Auth Callback Handler** - `app/auth/callback/route.ts` ✅
+  - Handle OAuth redirect ✅
+  - Auto-create user profile via database trigger ✅
+  - Redirect to home page ✅
+- [ ] **OAuth Provider Setup** (Manual - Supabase Dashboard)
+  - [ ] Enable Google OAuth in Supabase
+  - [ ] Enable Apple OAuth in Supabase
+  - [ ] Configure redirect URLs (localhost + production)
+  - [ ] Run migration 002_add_profile_trigger.sql in Supabase SQL editor
 
 #### 3. Storage Integration
 - [ ] **R2 Bucket Configuration**
