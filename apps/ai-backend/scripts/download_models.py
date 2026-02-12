@@ -53,24 +53,39 @@ def download_lora_weights(style: str = None) -> None:
     Args:
         style: Camera style slug (hasselblad, leica_m, zeiss, fujifilm_gfx)
     """
-    # Map styles to example LoRA repos
-    # In production, replace with actual LoRA repos
+    # Map styles to LoRA repositories
+    # These are placeholder repos - replace with actual HuggingFace repos
+    #
+    # To find suitable LoRAs:
+    # - Civitai: https://civitai.com/tag/loras (search for "hasselblad", "leica", etc.)
+    # - HuggingFace: https://huggingface.co/models?search=lora
+    #
+    # LoRA files should be:
+    # - FLUX.1-Schnell compatible
+    # - .safetensors format
+    # - Trained on photography/style transfer
     lora_repos = {
-        "hasselblad": "your-org/hasselblad-lora",  # Replace with actual
-        "leica_m": "your-org/leica-lora",
-        "zeiss": "your-org/zeiss-lora",
-        "fujifilm_gfx": "your-org/fuji-lora",
+        "hasselblad": "place-holder/hasselblad-x2d-lora-flux",  # Replace with actual
+        "leica_m": "place-holder/leica-m-lora-flux",
+        "zeiss": "place-holder/zeiss-otus-lora-flux",
+        "fujifilm_gfx": "place-holder/fujifilm-gfx-lora-flux",
     }
 
     if style and style in lora_repos:
         repo = lora_repos[style]
         print(f"📥 Downloading LoRA: {repo}")
+        print(f"⚠️  NOTE: This is a placeholder repo!")
+        print(f"    Replace with actual HuggingFace repo in download_models.py")
 
-        cache_path = snapshot_download(
-            repo_id=repo,
-            cache_dir=settings.lora_cache_dir,
-        )
-        print(f"✅ LoRA downloaded to: {cache_path}")
+        try:
+            cache_path = snapshot_download(
+                repo_id=repo,
+                cache_dir=settings.lora_cache_dir,
+            )
+            print(f"✅ LoRA downloaded to: {cache_path}")
+        except Exception as e:
+            print(f"❌ Failed to download: {e}")
+            print(f"   You may need to manually download LoRA files")
     else:
         print("⚠️  No LoRA repository configured for this style")
         print("Available styles:", list(lora_repos.keys()))
