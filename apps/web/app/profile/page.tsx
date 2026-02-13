@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 
 interface ProfileRow {
@@ -50,9 +51,9 @@ export default async function ProfilePage() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-4xl mx-auto px-4 py-4 flex justify-between items-center">
-          <a href="/" className="text-xl font-bold text-gray-900">
+          <Link href="/" className="text-xl font-bold text-gray-900">
             Hasselize
-          </a>
+          </Link>
           <SignOutButton />
         </div>
       </header>
@@ -125,12 +126,12 @@ export default async function ProfilePage() {
           ) : (
             <div className="text-center py-12 bg-white rounded-lg">
               <p className="text-gray-500 mb-4">No transformations yet</p>
-              <a
+              <Link
                 href="/transform"
                 className="inline-block px-6 py-2 text-white bg-primary-600 rounded-lg hover:bg-primary-700"
               >
                 Transform Your First Photo
-              </a>
+              </Link>
             </div>
           )}
         </div>
