@@ -31,7 +31,6 @@ export function FeedCard({
 }: FeedCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false)
 
-  // Preload images
   useEffect(() => {
     const img = new Image()
     img.onload = () => setImageLoaded(true)
@@ -43,9 +42,9 @@ export function FeedCard({
   }
 
   return (
-    <div className={`bg-white rounded-xl shadow-sm overflow-hidden ${className}`}>
+    <div className={`bg-white rounded-soft shadow-soft hover:shadow-soft-lg transition-all duration-300 overflow-hidden ${className}`}>
       {/* Before/After Slider */}
-      <div className="relative bg-gray-100">
+      <div className="relative bg-gradient-to-br from-pastel-lavender-50 to-pastel-mint-50">
         {thumbnail && !imageLoaded && (
           <img
             src={thumbnail}
@@ -56,30 +55,32 @@ export function FeedCard({
         <BeforeAfterSlider
           beforeImage={originalImage}
           afterImage={transformedImage}
+          beforeLabel="Before"
+          afterLabel="After"
           className={`w-full ${imageLoaded ? 'block' : 'hidden'}`}
         />
       </div>
 
       {/* Card Content */}
-      <div className="p-4">
+      <div className="p-5">
         {/* Camera Style Badge */}
-        <div className="flex items-center justify-between mb-3">
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+        <div className="flex items-center justify-between mb-4">
+          <span className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-pastel-lavender-100 text-pastel-lavender-700">
             {cameraStyle}
           </span>
-          <span className="text-xs text-gray-500">
+          <span className="text-sm text-gray-500 font-medium">
             {userName || 'Anonymous'}
           </span>
         </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2">
           <button
             onClick={onLike}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-softer text-sm font-medium transition-all duration-200 ${
               isLiked
-                ? 'text-red-500 bg-red-50 hover:bg-red-100'
-                : 'text-gray-600 hover:bg-gray-100'
+                ? 'bg-pastel-pink-100 text-pastel-pink-600 hover:bg-pastel-pink-200'
+                : 'bg-pastel-lavender-50 text-gray-600 hover:bg-pastel-lavender-100'
             }`}
           >
             <svg
@@ -100,14 +101,9 @@ export function FeedCard({
 
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-softer text-sm font-medium text-gray-600 bg-pastel-lavender-50 hover:bg-pastel-lavender-100 transition-all duration-200"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

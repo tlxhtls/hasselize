@@ -59,7 +59,7 @@ export function BeforeAfterSlider({
   return (
     <div
       ref={containerRef}
-      className={`relative overflow-hidden rounded-lg cursor-ew-resize select-none ${className}`}
+      className={`relative overflow-hidden rounded-soft cursor-ew-resize select-none ${className}`}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
@@ -93,12 +93,12 @@ export function BeforeAfterSlider({
 
       {/* Slider Handle */}
       <div
-        className="absolute top-0 bottom-0 w-1 bg-white shadow-lg"
+        className="absolute top-0 bottom-0 w-1.5 bg-gradient-to-b from-pastel-lavender-400 to-pastel-mint-400 shadow-soft"
         style={{ left: `${sliderPosition}%` }}
       >
-        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center">
+        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 bg-white rounded-soft shadow-soft-lg flex items-center justify-center ring-2 ring-pastel-lavender-100">
           <svg
-            className="w-4 h-4 text-gray-600"
+            className="w-5 h-5 text-pastel-lavender-600"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -114,11 +114,16 @@ export function BeforeAfterSlider({
       </div>
 
       {/* Labels */}
-      <div className="absolute top-3 left-3 px-2 py-1 bg-black/50 text-white text-xs font-medium rounded">
+      <div className="absolute top-4 left-4 px-3 py-1.5 bg-white/80 backdrop-blur-sm text-gray-700 text-xs font-semibold rounded-full shadow-soft">
         {beforeLabel}
       </div>
-      <div className="absolute top-3 right-3 px-2 py-1 bg-black/50 text-white text-xs font-medium rounded">
+      <div className="absolute top-4 right-4 px-3 py-1.5 bg-gradient-to-r from-pastel-lavender-400 to-pastel-mint-400 text-white text-xs font-semibold rounded-full shadow-soft">
         {afterLabel}
+      </div>
+
+      {/* Drag hint */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-white/80 backdrop-blur-sm text-gray-500 text-xs rounded-full shadow-soft pointer-events-none">
+        {'<>'}
       </div>
     </div>
   )
