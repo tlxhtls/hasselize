@@ -2,6 +2,19 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 
+interface ProfileRow {
+  credits_remaining: number
+  subscription_tier: 'free' | 'premium'
+}
+
+interface TransformationRow {
+  id: string
+  transformed_image_url: string
+  thumbnail_url: string | null
+  camera_style_id: string
+  created_at: string
+}
+
 export default async function ProfilePage() {
   const supabase = await createClient()
 
@@ -14,19 +27,23 @@ export default async function ProfilePage() {
   }
 
   // Fetch user profile
-  const { data: profile } = await supabase
+  const { data: profileData } = await supabase
     .from('profiles')
     .select('*')
     .eq('id', user.id)
     .single()
 
+  const profile = profileData as ProfileRow | null
+
   // Fetch user transformations
-  const { data: transformations } = await supabase
+  const { data: transformationsData } = await supabase
     .from('transformations')
     .select('*')
     .eq('user_id', user.id)
     .order('created_at', { ascending: false })
     .limit(20)
+
+  const transformations = (transformationsData ?? []) as TransformationRow[]
 
   return (
     <div className="min-h-screen pb-12">

@@ -2,7 +2,32 @@ import { AuthButton } from '@/components/AuthButton'
 import { FeedCard } from '@/components/FeedCard'
 import { createClient } from '@/lib/supabase/server'
 
-async function getFeedTransformations() {
+interface CameraStyleCard {
+  id: string
+  name: string
+  description: string | null
+  is_premium: boolean
+}
+
+interface FeedTransformation {
+  id: string
+  original_image_url: string
+  transformed_image_url: string
+  thumbnail_url: string | null
+}
+
+interface FeedProfile {
+  full_name: string | null
+}
+
+interface FeedItem {
+  id: string
+  likes_count: number
+  transformations: FeedTransformation | null
+  profiles: FeedProfile | null
+}
+
+async function getFeedTransformations(): Promise<FeedItem[]> {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -30,19 +55,23 @@ async function getFeedTransformations() {
     return []
   }
 
-  return data
+  return data as FeedItem[]
 }
 
-async function getCameraStyles() {
+async function getCameraStyles(): Promise<CameraStyleCard[]> {
   const supabase = await createClient()
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('camera_styles')
     .select('*')
     .eq('is_active', true)
     .order('display_order')
 
-  return data || []
+  if (error || !data) {
+    return []
+  }
+
+  return data as CameraStyleCard[]
 }
 
 export default async function HomePage() {
@@ -126,8 +155,12 @@ export default async function HomePage() {
           {feedItems.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {feedItems.map((item) => {
-                const transformation = item.transformations as any
-                const profile = item.profiles as any
+                const transformation = item.transformations
+                const profile = item.profiles
+
+                if (!transformation) {
+                  return null
+                }
 
                 return (
                   <FeedCard
@@ -135,9 +168,9 @@ export default async function HomePage() {
                     id={transformation.id}
                     originalImage={transformation.original_image_url}
                     transformedImage={transformation.transformed_image_url}
-                    thumbnail={transformation.thumbnail_url}
+                    thumbnail={transformation.thumbnail_url ?? undefined}
                     cameraStyle="Hasselblad"
-                    userName={profile?.full_name}
+                    userName={profile?.full_name ?? undefined}
                     likesCount={item.likes_count}
                   />
                 )
