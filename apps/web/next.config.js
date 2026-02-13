@@ -8,9 +8,6 @@ const withPWA = require('next-pwa')({
 
 const nextConfig = {
   reactStrictMode: true,
-  turbopack: {
-    root: __dirname,
-  },
   images: {
     remotePatterns: [
       {
